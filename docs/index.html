@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SM Accounts</title>
+  <meta name="theme-color" content="#1D3A8A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SM Accounts">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="robots" content="noindex">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- First-time setup -->
+  <section id="screen-setup" class="screen center" hidden>
+    <div class="card narrow">
+      <img src="icons/icon-192.png" alt="" class="logo">
+      <h1>SM Accounts</h1>
+      <p class="muted">One-time setup on this phone.</p>
+      <form id="setup-form" autocomplete="off">
+        <label>Backend web app URL
+          <input id="setup-url" type="url" required placeholder="https://script.google.com/macros/s/.../exec">
+        </label>
+        <label>PIN
+          <input id="setup-pin" type="password" inputmode="numeric" required minlength="4" maxlength="12">
+        </label>
+        <label class="check"><input id="setup-remember" type="checkbox"> Remember PIN on this phone</label>
+        <button type="submit" class="primary">Connect</button>
+        <p class="error" id="setup-error" role="alert"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- PIN lock -->
+  <section id="screen-lock" class="screen center" hidden>
+    <div class="card narrow">
+      <img src="icons/icon-192.png" alt="" class="logo">
+      <h1>SM Accounts</h1>
+      <form id="lock-form" autocomplete="off">
+        <label>Enter PIN
+          <input id="lock-pin" type="password" inputmode="numeric" required minlength="4" maxlength="12" autofocus>
+        </label>
+        <label class="check"><input id="lock-remember" type="checkbox"> Remember PIN on this phone</label>
+        <button type="submit" class="primary">Unlock</button>
+        <p class="error" id="lock-error" role="alert"></p>
+      </form>
+      <button type="button" class="link" data-action="reset">Change backend URL</button>
+    </div>
+  </section>
+
+  <!-- Main app -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <h1 id="title">Home</h1>
+      <button type="button" class="icon-btn" data-action="refresh" aria-label="Refresh">&#x21bb;</button>
+    </header>
+
+    <main>
+      <section id="tab-home" class="tab">
+        <div id="summary" class="summary-grid"></div>
+        <p class="muted small" id="summary-note"></p>
+        <button type="button" class="primary wide" data-goto="add">+ Add transaction</button>
+      </section>
+
+      <section id="tab-add" class="tab" hidden>
+        <form id="add-form" class="form" novalidate>
+          <div class="row2">
+            <label>Date<input name="date" type="date" required></label>
+            <label>Type<select name="type" data-list="type" required></select></label>
+          </div>
+          <label>Category<select name="category" data-list="category" required></select></label>
+          <label>Department<select name="department" data-list="department"></select></label>
+          <label>Vendor / Client<input name="vendor" list="vendor-list" required maxlength="200" autocomplete="off"></label>
+          <datalist id="vendor-list"></datalist>
+          <label>Description<input name="description" required maxlength="300"></label>
+          <div class="row2">
+            <label>Base Amount (&#8377;)<input name="amount" type="number" inputmode="decimal" step="0.01" required></label>
+            <label>GST %<select name="gstRate" data-list="gstRate"></select></label>
+          </div>
+          <p class="total-preview">Total: <strong id="total-preview">&#8377;0.00</strong></p>
+          <div class="row2">
+            <label>Payment Mode<select name="paymentMode" data-list="paymentMode" required></select></label>
+            <label>Status<select name="status" data-list="status" required></select></label>
+          </div>
+          <label>Invoice / Ref No.<input name="invoice" maxlength="100"></label>
+          <div class="row2">
+            <label>GST Invoice?<select name="gstInvoice" data-list="gstInvoice"></select></label>
+            <label>Paid By / Payer<select name="paidBy" data-list="paidBy"></select></label>
+          </div>
+          <label>Notes<textarea name="notes" rows="2" maxlength="500"></textarea></label>
+          <label class="file">Receipt photo or PDF
+            <input name="receipt" type="file" accept="image/*,application/pdf" capture="environment">
+          </label>
+          <img id="receipt-preview" alt="Receipt preview" hidden>
+          <p class="error" id="add-error" role="alert"></p>
+          <button type="submit" class="primary wide" id="add-submit">Save to sheet</button>
+        </form>
+      </section>
+
+      <section id="tab-list" class="tab" hidden>
+        <div class="segmented" role="tablist">
+          <button type="button" class="seg active" data-filter="pending">Pending</button>
+          <button type="button" class="seg" data-filter="all">Recent</button>
+        </div>
+        <ul id="txn-list" class="txn-list"></ul>
+      </section>
+
+      <section id="tab-more" class="tab" hidden>
+        <div class="card">
+          <h2>This phone</h2>
+          <p class="muted small" id="more-url"></p>
+          <button type="button" class="secondary wide" data-action="lock">Lock now</button>
+          <button type="button" class="secondary wide" data-action="forget-pin">Forget saved PIN</button>
+          <button type="button" class="danger wide" data-action="reset">Disconnect this phone</button>
+        </div>
+        <div class="card">
+          <h2>Install as an app</h2>
+          <p class="small">Android (Chrome): menu &#8942; &rarr; <b>Add to Home screen</b> &rarr; Install.<br>
+          iPhone (Safari): Share &rarr; <b>Add to Home Screen</b>.</p>
+          <button type="button" class="primary wide" id="install-btn" hidden>Install app</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button type="button" data-goto="home" class="active"><span>&#8962;</span>Home</button>
+      <button type="button" data-goto="add"><span>&#65291;</span>Add</button>
+      <button type="button" data-goto="list"><span>&#9776;</span>Entries</button>
+      <button type="button" data-goto="more"><span>&#8943;</span>More</button>
+    </nav>
+  </div>
+
+  <div id="toast" role="status" hidden></div>
+  <div id="busy" hidden><div class="spinner"></div><p id="busy-text">Working…</p></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
