@@ -39,7 +39,8 @@
         redirect: 'follow',
       });
     } catch (e) {
-      throw new Error('No connection. Nothing was saved. Check your internet and try again.');
+      if (navigator.onLine === false) throw new Error('No internet connection. Nothing was saved. Try again when you are online.');
+      throw new Error('Could not reach the backend. Nothing was saved. In Apps Script, check Deploy → Manage deployments: "Who has access" must be "Anyone", and the URL must end in /exec.');
     }
     let data;
     try { data = await res.json(); } catch (e) {
