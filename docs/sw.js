@@ -1,6 +1,6 @@
 /* Caches the app shell so it opens instantly and installs as an app.
    Requests to the Apps Script backend always go to the network. */
-const CACHE = 'sm-accounts-v1';
+const CACHE = 'sm-accounts-v2';
 const SHELL = [
   './',
   'index.html',
